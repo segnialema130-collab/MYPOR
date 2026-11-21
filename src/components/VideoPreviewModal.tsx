@@ -1,6 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {AnimatePresence, motion} from 'motion/react';
-import {Maximize2, Pause, Play, SlidersHorizontal, Volume2, VolumeX, X} from 'lucide-react';
+import {Loader2, Maximize2, Pause, Play, RefreshCw, SlidersHorizontal, Volume2, VolumeX, X} from 'lucide-react';
 import type {PortfolioProject} from '../data/portfolioData';
 
 interface VideoPreviewModalProps {
@@ -42,6 +42,8 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
   const [progress, setProgress] = useState(0);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [videoDurationSec, setVideoDurationSec] = useState<number | null>(null);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [videoLoadError, setVideoLoadError] = useState(false);
   const totalDemoSec = 24;
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -53,8 +55,10 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
     setProgress(0);
     setCurrentTimeSec(0);
     setVideoDurationSec(null);
+    setIsBuffering(Boolean(project?.videoUrl));
+    setVideoLoadError(false);
     setGradeSplit(false);
-  }, [project?.id]);
+  }, [project?.id, project?.videoUrl]);
 
   // ESC key handler
   useEffect(() => {
@@ -177,26 +181,71 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                   className="h-full w-full border-0"
                 />
               ) : isNativeVideo ? (
-                <video
-                  ref={videoRef}
-                  src={project.videoUrl}
-                  poster={project.thumbnail}
-                  playsInline
-                  autoPlay
-                  loop
-                  onClick={() => setIsPlaying((p) => !p)}
-                  onLoadedMetadata={() => {
-                    if (videoRef.current?.duration) {
-                      setVideoDurationSec(videoRef.current.duration);
-                    }
-                  }}
-                  onTimeUpdate={() => {
-                    if (!videoRef.current || !videoRef.current.duration) return;
-                    setCurrentTimeSec(videoRef.current.currentTime);
-                    setProgress((videoRef.current.currentTime / videoRef.current.duration) * 100);
-                  }}
-                  className="h-full w-full object-contain bg-black cursor-pointer"
-                />
+                <div className="relative h-full w-full bg-black">
+                  <video
+                    ref={videoRef}
+                    src={project.videoUrl}
+                    poster={project.thumbnail}
+                    preload="auto"
+                    playsInline
+                    autoPlay
+                    loop
+                    onClick={() => setIsPlaying((p) => !p)}
+                    onLoadStart={() => {
+                      setIsBuffering(true);
+                      setVideoLoadError(false);
+                    }}
+                    onLoadedMetadata={() => {
+                      if (videoRef.current?.duration) {
+                        setVideoDurationSec(videoRef.current.duration);
+                      }
+                    }}
+                    onCanPlay={() => setIsBuffering(false)}
+                    onPlaying={() => {
+                      setIsBuffering(false);
+                      setVideoLoadError(false);
+                    }}
+                    onWaiting={() => setIsBuffering(true)}
+                    onError={() => {
+                      setIsBuffering(false);
+                      setVideoLoadError(true);
+                    }}
+                    onTimeUpdate={() => {
+                      if (!videoRef.current || !videoRef.current.duration) return;
+                      setCurrentTimeSec(videoRef.current.currentTime);
+                      setProgress((videoRef.current.currentTime / videoRef.current.duration) * 100);
+                    }}
+                    className="h-full w-full object-contain bg-black cursor-pointer"
+                  />
+
+                  {isBuffering && !videoLoadError && (
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/35">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-400/40 bg-black/75 px-4 py-2 text-xs font-medium text-orange-200 backdrop-blur-md">
+                        <Loader2 className="h-4 w-4 animate-spin text-orange-400" />
+                        Loading video...
+                      </div>
+                    </div>
+                  )}
+
+                  {videoLoadError && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 p-6 text-center">
+                      <p className="text-sm text-zinc-200">Unable to stream this video right now.</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVideoLoadError(false);
+                          setIsBuffering(true);
+                          videoRef.current?.load();
+                          videoRef.current?.play().catch(() => {});
+                        }}
+                        className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2 text-xs font-semibold text-black hover:from-orange-400 hover:to-amber-400 cursor-pointer"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Retry Video
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 /* Interactive Studio Preview Sequence (when no external MP4/YouTube URL is linked yet) */
                 <div className="relative h-full w-full overflow-hidden select-none">

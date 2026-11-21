@@ -23,7 +23,8 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
   const [tilt, setTilt] = useState({rotateX: 0, rotateY: 0});
-  const [mediaError, setMediaError] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [posterError, setPosterError] = useState(false);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -83,24 +84,25 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
               isFeaturedSlot ? 'aspect-[16/10] lg:h-full lg:min-h-[420px]' : 'aspect-[16/10]'
             }`}
           >
-            {project.videoUrl && !mediaError ? (
+            {project.videoUrl && !videoError ? (
               <video
                 ref={videoPreviewRef}
-                src={`${project.videoUrl}#t=0.8`}
+                src={project.videoUrl}
                 poster={project.thumbnail}
                 muted
                 loop
                 playsInline
-                preload="metadata"
-                onError={() => setMediaError(true)}
+                preload="none"
+                onError={() => setVideoError(true)}
                 className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
               />
-            ) : !mediaError ? (
+            ) : !posterError ? (
               <img
                 src={project.thumbnail}
                 alt={project.title}
+                loading="lazy"
                 referrerPolicy="no-referrer"
-                onError={() => setMediaError(true)}
+                onError={() => setPosterError(true)}
                 className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
             ) : (
@@ -189,7 +191,7 @@ export function PortfolioSection({onSelectProject}: PortfolioSectionProps) {
       aspectLabel: 'Custom Master',
       description: 'Uploaded directly in-browser for instant playback and portfolio layout preview.',
       tools: ['Adobe Premiere Pro', 'SEGNI EDITOR'],
-      thumbnail: assetUrl('/src/assets/images/thumb_cinematic_edit_1795201039958.jpg'),
+      thumbnail: assetUrl('/assets/aistudio/poster_segni_showreel.webp'),
       videoUrl: objectUrl,
       accentHue: 'purple',
     };
