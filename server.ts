@@ -230,6 +230,35 @@ async function tryOptionalForwarding(inquiry: InquiryRecord): Promise<string[]> 
     }
   }
 
+  // Optional Web3Forms server-side forwarding if WEB3FORMS_ACCESS_KEY is configured
+  const web3FormsKey = process.env.WEB3FORMS_ACCESS_KEY?.trim();
+  if (web3FormsKey) {
+    try {
+      const w3Res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: web3FormsKey,
+          name: inquiry.name,
+          email: inquiry.email,
+          replyto: inquiry.email,
+          subject,
+          category: inquiry.projectType,
+          message: inquiry.message,
+        }),
+      });
+      const w3Data = (await w3Res.json().catch(() => ({}))) as {success?: boolean};
+      if (w3Res.ok && w3Data.success) {
+        forwarded.push('web3forms');
+      }
+    } catch (err) {
+      console.error('Optional Web3Forms forward skipped:', err);
+    }
+  }
+
   // Optional Telegram Bot notification if configured
   const tgToken = process.env.TELEGRAM_BOT_TOKEN;
   const tgChatId = process.env.TELEGRAM_CHAT_ID;
@@ -308,10 +337,16 @@ async function startServer() {
     existing.unshift(inquiry);
     writeInquiries(existing.slice(0, 500));
 
+    const emailDelivered = extraChannels.some((ch) =>
+      ch === 'smtp' || ch === 'resend' || ch === 'web3forms',
+    );
+
     res.status(201).json({
       ok: true,
       id: inquiry.id,
       createdAt: inquiry.createdAt,
+      savedToInbox: true,
+      emailDelivered,
       forwardedVia: inquiry.forwardedVia,
     });
   });

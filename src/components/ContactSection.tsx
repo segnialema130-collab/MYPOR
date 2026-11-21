@@ -18,7 +18,8 @@ export function ContactSection() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
-  const [submittedMode, setSubmittedMode] = useState<'inbox' | 'relay' | null>(null);
+  const [submittedMode, setSubmittedMode] = useState<'email' | 'relay' | null>(null);
+  const [savedToInbox, setSavedToInbox] = useState(false);
   const [showStaticChannels, setShowStaticChannels] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
@@ -45,53 +46,74 @@ export function ContactSection() {
 
     setError('');
     setShowStaticChannels(false);
+    setSavedToInbox(false);
     setSending(true);
 
+    let inboxSaved = false;
+
     try {
-      const apiRes = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          name: cleanName,
-          email: cleanEmail,
-          projectType,
-          message: cleanMessage,
-        }),
-      });
+      try {
+        const apiRes = await fetch('/api/contact', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            name: cleanName,
+            email: cleanEmail,
+            projectType,
+            message: cleanMessage,
+          }),
+        });
 
-      const contentType = apiRes.headers.get('content-type') || '';
-      const isJsonApi = contentType.includes('application/json');
+        const contentType = apiRes.headers.get('content-type') || '';
+        const isJsonApi = contentType.includes('application/json');
 
-      if (isJsonApi && apiRes.status !== 404 && apiRes.status !== 405) {
-        const apiData = (await apiRes.json().catch(() => ({}))) as {
-          ok?: boolean;
-          error?: string;
-        };
+        if (isJsonApi && apiRes.status !== 404 && apiRes.status !== 405) {
+          const apiData = (await apiRes.json().catch(() => ({}))) as {
+            ok?: boolean;
+            error?: string;
+            savedToInbox?: boolean;
+            emailDelivered?: boolean;
+          };
 
-        if (!apiRes.ok || !apiData.ok) {
-          setError(apiData.error || 'Could not send message right now. Please try again.');
-          return;
+          if (!apiRes.ok || !apiData.ok) {
+            setError(apiData.error || 'Could not send message right now. Please try again.');
+            return;
+          }
+
+          inboxSaved = Boolean(apiData.savedToInbox);
+          setSavedToInbox(inboxSaved);
+
+          if (apiData.emailDelivered) {
+            setSubmittedMode('email');
+            return;
+          }
         }
-
-        setSubmittedMode('inbox');
-        return;
+      } catch {
+        // Continue to browser email relay when /api/contact is unavailable
       }
 
-      // Static hosting fallback (e.g. GitHub Pages where server.ts is not running)
-      const relayRes = await fetch(`https://formsubmit.co/ajax/${BRAND_CONFIG.contact.email}`, {
+      // Browser FormData relay to FormSubmit (avoids JSON CORS preflight issues)
+      const formData = new FormData();
+      formData.append('name', cleanName);
+      formData.append('email', cleanEmail);
+      formData.append('projectType', projectType);
+      formData.append('message', cleanMessage);
+      formData.append('_replyto', cleanEmail);
+      formData.append('_subject', `[PORTFOLIO] ${projectType} from ${cleanName}`);
+      formData.append('_template', 'table');
+      formData.append('_captcha', 'false');
+      formData.append('_honey', '');
+      if (typeof window !== 'undefined' && window.location?.href) {
+        formData.append('_url', window.location.href);
+      }
+
+      const relayEndpoint = `https://formsubmit.co/ajax/${encodeURIComponent(BRAND_CONFIG.contact.email)}`;
+      const relayRes = await fetch(relayEndpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({
-          name: cleanName,
-          email: cleanEmail,
-          projectType,
-          message: cleanMessage,
-          _subject: `[PORTFOLIO] ${projectType} from ${cleanName}`,
-          _captcha: 'false',
-        }),
+        body: formData,
       });
 
       const relayData = (await relayRes.json().catch(() => ({}))) as {
@@ -104,22 +126,43 @@ export function ContactSection() {
         return;
       }
 
+      const needsActivation =
+        typeof relayData.message === 'string' && /activat/i.test(relayData.message);
+
       setShowStaticChannels(true);
-      setError(
-        'Direct email relay is awaiting activation on this domain. Send your pre-filled message in one tap below via WhatsApp, Telegram, or Email.',
-      );
+      if (needsActivation) {
+        setError(
+          inboxSaved
+            ? `Your message is saved in Segni's Client Inbox, and the domain email verification link was just sent to ${BRAND_CONFIG.contact.email}. To notify Segni instantly right now, tap "Send via Gmail" or "Send via WhatsApp" below.`
+            : `First-time email verification for this website link was sent to ${BRAND_CONFIG.contact.email} (Segni needs to click "Activate Form" once in Gmail). Tap "Send via Gmail" or "Send via WhatsApp" below to send your pre-filled message right now!`,
+        );
+      } else {
+        setError(
+          inboxSaved
+            ? `Your message is saved in Segni's Client Inbox, but external email delivery could not complete automatically. Tap "Send via Gmail" or "Send via WhatsApp" below to reach Segni immediately.`
+            : 'Direct email delivery could not complete automatically on this browser. Tap "Send via Gmail" or "Send via WhatsApp" below to send your pre-filled message in one tap.',
+        );
+      }
     } catch {
       setShowStaticChannels(true);
-      setError('Could not reach the server. You can send your pre-filled message instantly using the buttons below.');
+      setError(
+        inboxSaved
+          ? `Your message was saved in Segni's Client Inbox. You can also tap "Send via Gmail" or "Send via WhatsApp" below.`
+          : 'Could not reach the email relay right now. Tap "Send via Gmail" or "Send via WhatsApp" below to send your pre-filled message instantly.',
+      );
     } finally {
       setSending(false);
     }
   };
 
   const formattedText = `Hi Segni, I'm ${name.trim() || 'a client'} (${email.trim()}).\nProject: ${projectType}\n\n${message.trim()}`;
+  const emailSubject = `[PORTFOLIO] ${projectType} from ${name.trim() || 'Portfolio Visitor'}`;
   const whatsappDirectHref = `${BRAND_CONFIG.contact.whatsappUrl}?text=${encodeURIComponent(formattedText)}`;
+  const gmailComposeHref = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+    BRAND_CONFIG.contact.email,
+  )}&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(formattedText)}`;
   const mailtoDirectHref = `mailto:${BRAND_CONFIG.contact.email}?subject=${encodeURIComponent(
-    `[PORTFOLIO] ${projectType} from ${name.trim() || 'Portfolio Visitor'}`,
+    emailSubject,
   )}&body=${encodeURIComponent(formattedText)}`;
 
   return (
@@ -241,13 +284,13 @@ export function ContactSection() {
                     <Check className="h-6 w-6" />
                   </div>
                   <h3 className="mt-5 font-display text-2xl font-bold text-white">
-                    Message Received!
+                    Message Sent Directly!
                   </h3>
                   <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-zinc-300">
                     Thank you, {name}. Your comment and email (<span className="font-medium text-orange-300">{email}</span>)
-                    {submittedMode === 'inbox'
-                      ? " have been saved directly into Segni's Client Inbox."
-                      : ` have been forwarded directly to ${BRAND_CONFIG.contact.email}.`}
+                    {submittedMode === 'email'
+                      ? ` have been delivered directly to ${BRAND_CONFIG.contact.email}${savedToInbox ? " and saved in Segni's Client Inbox." : '.'}`
+                      : ` have been sent straight to ${BRAND_CONFIG.contact.email}${savedToInbox ? " and saved in Segni's Client Inbox." : '.'}`}
                   </p>
                   <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                     <a
@@ -263,6 +306,7 @@ export function ContactSection() {
                       type="button"
                       onClick={() => {
                         setSubmittedMode(null);
+                        setSavedToInbox(false);
                         setShowStaticChannels(false);
                         setName('');
                         setEmail('');
@@ -354,10 +398,19 @@ export function ContactSection() {
                       {showStaticChannels && (
                         <div className="flex flex-wrap gap-2 pt-1">
                           <a
-                            href={whatsappDirectHref}
+                            href={gmailComposeHref}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1.5 rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-orange-400"
+                          >
+                            <Mail className="h-3.5 w-3.5" />
+                            Send via Gmail
+                          </a>
+                          <a
+                            href={whatsappDirectHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-orange-400/45 bg-orange-500/15 px-3 py-1.5 text-xs font-semibold text-orange-200 hover:bg-orange-500/25"
                           >
                             <MessageCircle className="h-3.5 w-3.5" />
                             Send via WhatsApp

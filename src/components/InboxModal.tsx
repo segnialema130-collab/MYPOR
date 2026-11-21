@@ -10,6 +10,7 @@ interface InquiryItem {
   message: string;
   createdAt: string;
   read: boolean;
+  forwardedVia?: string[];
 }
 
 interface InboxModalProps {
@@ -298,6 +299,14 @@ export function InboxModal({open, onClose}: InboxModalProps) {
                             {!item.read && (
                               <span className="text-xs font-semibold text-amber-300">· Unread</span>
                             )}
+                            {item.forwardedVia && (
+                              <span className="text-xs text-zinc-400">
+                                ·{' '}
+                                {item.forwardedVia.some((c) => c === 'smtp' || c === 'resend' || c === 'web3forms')
+                                  ? 'Email Delivered'
+                                  : 'Inbox Saved'}
+                              </span>
+                            )}
                           </div>
                           <p className="mt-1 text-xs text-zinc-400">
                             {item.email} <span aria-hidden="true">·</span>{' '}
@@ -307,7 +316,19 @@ export function InboxModal({open, onClose}: InboxModalProps) {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <a
+                            href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+                              item.email,
+                            )}&su=${encodeURIComponent(`Re: ${item.projectType} — PORTFOLIO`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-orange-400/35 bg-orange-500/10 px-2.5 text-xs font-medium text-orange-200 hover:bg-orange-500/20"
+                          >
+                            <Mail className="h-3.5 w-3.5" />
+                            Reply
+                          </a>
+
                           <button
                             type="button"
                             onClick={() => handleCopyEmail(item.id, item.email)}
