@@ -1,3 +1,7 @@
+import {assetUrl} from '../data/portfolioData';
+
+const MOTION_BLUR_SRC = assetUrl('/assets/aistudio/image_d710e069.png');
+
 export function MotionBlurBackground() {
   return (
     <div
@@ -14,7 +18,7 @@ export function MotionBlurBackground() {
 
       {/* Primary sweeping motion-blur layer from uploaded orange & black background */}
       <img
-        src="/assets/aistudio/image_d710e069.png"
+        src={MOTION_BLUR_SRC}
         alt=""
         referrerPolicy="no-referrer"
         className="animate-motion-blur-a absolute inset-0 h-full w-full object-cover opacity-90 blur-[14px] will-change-transform"
@@ -22,7 +26,7 @@ export function MotionBlurBackground() {
 
       {/* Secondary counter-drifting optical motion-blur trail */}
       <img
-        src="/assets/aistudio/image_d710e069.png"
+        src={MOTION_BLUR_SRC}
         alt=""
         referrerPolicy="no-referrer"
         className="animate-motion-blur-b absolute inset-0 h-full w-full object-cover opacity-55 mix-blend-screen blur-[32px] will-change-transform"

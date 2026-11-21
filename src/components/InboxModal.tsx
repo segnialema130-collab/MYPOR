@@ -20,6 +20,7 @@ interface InboxModalProps {
 export function InboxModal({open, onClose}: InboxModalProps) {
   const [token, setToken] = useState<string | null>(null);
   const [configured, setConfigured] = useState<boolean | null>(null);
+  const [staticHost, setStaticHost] = useState(false);
   const [passcode, setPasscode] = useState('');
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,13 +39,25 @@ export function InboxModal({open, onClose}: InboxModalProps) {
   useEffect(() => {
     if (!open) return;
     let active = true;
+    setStaticHost(false);
     fetch('/api/inquiries/auth-status')
-      .then((res) => res.json())
-      .then((data: {configured?: boolean}) => {
+      .then(async (res) => {
+        const contentType = res.headers.get('content-type') || '';
+        if (!res.ok || !contentType.includes('application/json')) {
+          if (active) {
+            setStaticHost(true);
+            setConfigured(false);
+          }
+          return;
+        }
+        const data = (await res.json()) as {configured?: boolean};
         if (active) setConfigured(Boolean(data.configured));
       })
       .catch(() => {
-        if (active) setConfigured(true);
+        if (active) {
+          setStaticHost(true);
+          setConfigured(false);
+        }
       });
     return () => {
       active = false;
@@ -195,7 +208,16 @@ export function InboxModal({open, onClose}: InboxModalProps) {
 
             {/* Body */}
             <div className="max-h-[75vh] overflow-y-auto p-6">
-              {!token ? (
+              {staticHost ? (
+                <div className="mx-auto max-w-md space-y-3 py-8 text-center">
+                  <Lock className="mx-auto h-8 w-8 text-orange-400" />
+                  <h4 className="font-display text-lg font-bold text-white">Static Hosting Mode</h4>
+                  <p className="text-xs leading-relaxed text-zinc-300">
+                    The local Client Inbox database requires running the Node server (<code className="text-orange-300">npm start</code>).
+                    On static hosts like GitHub Pages, visitor messages from the contact form are routed directly to your email relay or WhatsApp/Telegram.
+                  </p>
+                </div>
+              ) : !token ? (
                 <form onSubmit={handleAuthSubmit} className="mx-auto max-w-sm space-y-4 py-6">
                   <div className="flex items-center gap-2 text-sm font-medium text-white">
                     <Lock className="h-4 w-4 text-orange-400" />

@@ -2,6 +2,7 @@ import {useRef, useState, type MouseEvent} from 'react';
 import {AnimatePresence, motion} from 'motion/react';
 import {Film, Play, Plus} from 'lucide-react';
 import {
+  assetUrl,
   PORTFOLIO_CATEGORIES,
   PORTFOLIO_PROJECTS,
   type PortfolioCategory,
@@ -188,7 +189,7 @@ export function PortfolioSection({onSelectProject}: PortfolioSectionProps) {
       aspectLabel: 'Custom Master',
       description: 'Uploaded directly in-browser for instant playback and portfolio layout preview.',
       tools: ['Adobe Premiere Pro', 'SEGNI EDITOR'],
-      thumbnail: '/src/assets/images/thumb_cinematic_edit_1795201039958.jpg',
+      thumbnail: assetUrl('/src/assets/images/thumb_cinematic_edit_1795201039958.jpg'),
       videoUrl: objectUrl,
       accentHue: 'purple',
     };

@@ -18,7 +18,8 @@ export function ContactSection() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submittedMode, setSubmittedMode] = useState<'inbox' | 'relay' | null>(null);
+  const [showStaticChannels, setShowStaticChannels] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const handleCopy = (key: string, value: string) => {
@@ -43,6 +44,7 @@ export function ContactSection() {
     }
 
     setError('');
+    setShowStaticChannels(false);
     setSending(true);
 
     try {
@@ -57,27 +59,68 @@ export function ContactSection() {
         }),
       });
 
-      const apiData = (await apiRes.json().catch(() => ({}))) as {
-        ok?: boolean;
-        error?: string;
-      };
+      const contentType = apiRes.headers.get('content-type') || '';
+      const isJsonApi = contentType.includes('application/json');
 
-      if (!apiRes.ok || !apiData.ok) {
-        setError(apiData.error || 'Could not send message right now. Please try again.');
+      if (isJsonApi && apiRes.status !== 404 && apiRes.status !== 405) {
+        const apiData = (await apiRes.json().catch(() => ({}))) as {
+          ok?: boolean;
+          error?: string;
+        };
+
+        if (!apiRes.ok || !apiData.ok) {
+          setError(apiData.error || 'Could not send message right now. Please try again.');
+          return;
+        }
+
+        setSubmittedMode('inbox');
         return;
       }
 
-      setSubmitted(true);
+      // Static hosting fallback (e.g. GitHub Pages where server.ts is not running)
+      const relayRes = await fetch(`https://formsubmit.co/ajax/${BRAND_CONFIG.contact.email}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: cleanName,
+          email: cleanEmail,
+          projectType,
+          message: cleanMessage,
+          _subject: `[SEGNI EDITOR] ${projectType} from ${cleanName}`,
+          _captcha: 'false',
+        }),
+      });
+
+      const relayData = (await relayRes.json().catch(() => ({}))) as {
+        success?: boolean | string;
+        message?: string;
+      };
+
+      if (relayRes.ok && (relayData.success === true || relayData.success === 'true')) {
+        setSubmittedMode('relay');
+        return;
+      }
+
+      setShowStaticChannels(true);
+      setError(
+        'Direct email relay is awaiting activation on this domain. Send your pre-filled message in one tap below via WhatsApp, Telegram, or Email.',
+      );
     } catch {
-      setError('Network error while sending your message. Please try again.');
+      setShowStaticChannels(true);
+      setError('Could not reach the server. You can send your pre-filled message instantly using the buttons below.');
     } finally {
       setSending(false);
     }
   };
 
-  const whatsappDirectHref = `${BRAND_CONFIG.contact.whatsappUrl}?text=${encodeURIComponent(
-    `Hi Segni, I'm ${name.trim() || 'a client'} (${email.trim()}).\nProject: ${projectType}\n\n${message.trim()}`,
-  )}`;
+  const formattedText = `Hi Segni, I'm ${name.trim() || 'a client'} (${email.trim()}).\nProject: ${projectType}\n\n${message.trim()}`;
+  const whatsappDirectHref = `${BRAND_CONFIG.contact.whatsappUrl}?text=${encodeURIComponent(formattedText)}`;
+  const mailtoDirectHref = `mailto:${BRAND_CONFIG.contact.email}?subject=${encodeURIComponent(
+    `[SEGNI EDITOR] ${projectType} from ${name.trim() || 'Portfolio Visitor'}`,
+  )}&body=${encodeURIComponent(formattedText)}`;
 
   return (
     <section id="contact" className="py-20 lg:py-28">
@@ -192,7 +235,7 @@ export function ContactSection() {
           {/* Right Column: Instant Client Inbox Submission Form */}
           <div className="lg:col-span-7">
             <div className="rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/90 backdrop-blur-md p-6 sm:p-8">
-              {submitted ? (
+              {submittedMode ? (
                 <div className="py-10 text-center">
                   <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-orange-400/50 bg-orange-500/15 text-orange-400">
                     <Check className="h-6 w-6" />
@@ -202,7 +245,9 @@ export function ContactSection() {
                   </h3>
                   <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-zinc-300">
                     Thank you, {name}. Your comment and email (<span className="font-medium text-orange-300">{email}</span>)
-                    have been saved directly into Segni&apos;s Client Inbox.
+                    {submittedMode === 'inbox'
+                      ? " have been saved directly into Segni's Client Inbox."
+                      : ` have been forwarded directly to ${BRAND_CONFIG.contact.email}.`}
                   </p>
                   <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                     <a
@@ -217,7 +262,8 @@ export function ContactSection() {
                     <button
                       type="button"
                       onClick={() => {
-                        setSubmitted(false);
+                        setSubmittedMode(null);
+                        setShowStaticChannels(false);
                         setName('');
                         setEmail('');
                         setMessage('');
@@ -300,12 +346,41 @@ export function ContactSection() {
                   </div>
 
                   {error && (
-                    <p
+                    <div
                       role="alert"
-                      className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-medium text-rose-300"
+                      className="space-y-3 rounded-lg border border-orange-500/35 bg-orange-500/10 p-3.5 text-xs font-medium text-orange-200"
                     >
-                      {error}
-                    </p>
+                      <p>{error}</p>
+                      {showStaticChannels && (
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <a
+                            href={whatsappDirectHref}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-md bg-orange-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-orange-400"
+                          >
+                            <MessageCircle className="h-3.5 w-3.5" />
+                            Send via WhatsApp
+                          </a>
+                          <a
+                            href={mailtoDirectHref}
+                            className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white hover:border-orange-400/60"
+                          >
+                            <Mail className="h-3.5 w-3.5 text-orange-400" />
+                            Open Email App
+                          </a>
+                          <a
+                            href={BRAND_CONFIG.contact.telegramUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white hover:border-orange-400/60"
+                          >
+                            <Send className="h-3.5 w-3.5 text-orange-400" />
+                            Telegram
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   <button
