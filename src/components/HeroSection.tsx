@@ -1,9 +1,10 @@
 import {useState} from 'react';
 import {motion} from 'motion/react';
 import {ArrowRight, Instagram, Mail, MessageCircle, Send, Youtube} from 'lucide-react';
-import {BRAND_CONFIG, HERO_METRICS} from '../data/portfolioData';
+import {assetUrl, BRAND_CONFIG, HERO_METRICS} from '../data/portfolioData';
 
 export function HeroSection() {
+  const [portraitSrc, setPortraitSrc] = useState(BRAND_CONFIG.heroPortrait);
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -121,10 +122,22 @@ export function HeroSection() {
             <div className="group relative h-72 w-72 sm:h-80 sm:w-80 md:h-[340px] md:w-[340px] lg:h-[380px] lg:w-[380px] overflow-hidden rounded-full border-2 border-orange-500/50 bg-[#0D0B0A] shadow-[0_0_48px_rgba(249,115,22,0.24)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-105 hover:border-amber-300/80 hover:shadow-[0_0_60px_rgba(249,115,22,0.38)] will-change-transform">
               {!imgError ? (
                 <img
-                  src={BRAND_CONFIG.heroPortrait}
+                  src={portraitSrc}
                   alt="Segni Alemayehu — Creative Video Editor"
+                  width={380}
+                  height={380}
+                  loading="eager"
+                  decoding="sync"
+                  fetchPriority="high"
                   referrerPolicy="no-referrer"
-                  onError={() => setImgError(true)}
+                  onError={() => {
+                    const fallback = assetUrl('/assets/aistudio/image_81289454.png');
+                    if (portraitSrc !== fallback) {
+                      setPortraitSrc(fallback);
+                    } else {
+                      setImgError(true);
+                    }
+                  }}
                   className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-110"
                 />
               ) : (

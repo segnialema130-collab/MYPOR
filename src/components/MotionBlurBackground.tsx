@@ -1,6 +1,6 @@
 import {assetUrl} from '../data/portfolioData';
 
-const MOTION_BLUR_SRC = assetUrl('/assets/aistudio/image_d710e069.png');
+const MOTION_BLUR_SRC = assetUrl('/assets/aistudio/segni_backdrop.webp');
 
 export function MotionBlurBackground() {
   return (

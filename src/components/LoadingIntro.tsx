@@ -14,7 +14,7 @@ export function LoadingIntro() {
 
     const timer = window.setTimeout(() => {
       setVisible(false);
-    }, 950);
+    }, 380);
 
     return () => window.clearTimeout(timer);
   }, []);
@@ -25,7 +25,7 @@ export function LoadingIntro() {
         <motion.div
           key="segni-intro"
           initial={{opacity: 1}}
-          exit={{opacity: 0, transition: {duration: 0.45, ease: [0.16, 1, 0.3, 1]}}}
+          exit={{opacity: 0, transition: {duration: 0.25, ease: [0.16, 1, 0.3, 1]}}}
           onClick={() => setVisible(false)}
           className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] px-6 cursor-pointer select-none"
           aria-label="Loading portfolio"
