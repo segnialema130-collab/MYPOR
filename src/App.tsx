@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {AboutSection} from './components/AboutSection';
 import {ContactSection} from './components/ContactSection';
 import {CustomCursor} from './components/CustomCursor';
@@ -14,11 +14,16 @@ import {ServicesSection} from './components/ServicesSection';
 import {SkillsSection} from './components/SkillsSection';
 import {TestimonialsSection} from './components/TestimonialsSection';
 import {VideoPreviewModal} from './components/VideoPreviewModal';
-import type {PortfolioProject} from './data/portfolioData';
+import {PORTFOLIO_PROJECTS, type PortfolioProject} from './data/portfolioData';
+import {startPortfolioVideoPreload} from './utils/videoPreloader';
 
 export default function App() {
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
+
+  useEffect(() => {
+    startPortfolioVideoPreload(PORTFOLIO_PROJECTS);
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-zinc-100">

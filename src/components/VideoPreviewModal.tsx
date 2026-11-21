@@ -1,7 +1,8 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {AnimatePresence, motion} from 'motion/react';
 import {Loader2, Maximize2, Pause, Play, RefreshCw, SlidersHorizontal, Volume2, VolumeX, X} from 'lucide-react';
 import type {PortfolioProject} from '../data/portfolioData';
+import {getPreloadedVideoUrl, isVideoPreloaded, prioritizeVideoPreload} from '../utils/videoPreloader';
 
 interface VideoPreviewModalProps {
   project: PortfolioProject | null;
@@ -50,29 +51,77 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerWrapperRef = useRef<HTMLDivElement | null>(null);
+  const userPausedRef = useRef(false);
+  const playInFlightRef = useRef(false);
+  const bufferingTimerRef = useRef<number | null>(null);
+
+  const resolvedVideoUrl = useMemo(
+    () => (project?.videoUrl ? getPreloadedVideoUrl(project.videoUrl) : undefined),
+    [project?.id, project?.videoUrl],
+  );
+  const isAlreadyInMemory = useMemo(
+    () => isVideoPreloaded(project?.videoUrl),
+    [project?.id, project?.videoUrl],
+  );
+
+  const clearBufferingTimer = () => {
+    if (bufferingTimerRef.current !== null) {
+      window.clearTimeout(bufferingTimerRef.current);
+      bufferingTimerRef.current = null;
+    }
+  };
+
+  const stopBuffering = () => {
+    clearBufferingTimer();
+    setIsBuffering(false);
+  };
+
+  const scheduleBufferingNotice = (delayMs = 650) => {
+    clearBufferingTimer();
+    if (isAlreadyInMemory) return;
+    bufferingTimerRef.current = window.setTimeout(() => {
+      if (!userPausedRef.current) {
+        setIsBuffering(true);
+      }
+    }, delayMs);
+  };
 
   // Reset playback state when switching projects
   useEffect(() => {
+    clearBufferingTimer();
+    userPausedRef.current = false;
+    playInFlightRef.current = false;
     setIsPlaying(true);
     setAutoMutedNotice(false);
     setProgress(0);
     setCurrentTimeSec(0);
     setVideoDurationSec(null);
-    setIsBuffering(Boolean(project?.videoUrl));
+    setIsBuffering(false);
     setHasStartedPlaying(false);
     setVideoLoadError(false);
     setGradeSplit(false);
+    if (project?.videoUrl) {
+      prioritizeVideoPreload(project.videoUrl);
+    }
+    return () => clearBufferingTimer();
   }, [project?.id, project?.videoUrl]);
 
   const attemptPlay = (video: HTMLVideoElement) => {
+    if (userPausedRef.current || playInFlightRef.current) return;
+    playInFlightRef.current = true;
     video.muted = isMuted;
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
+          playInFlightRef.current = false;
           setIsPlaying(true);
         })
-        .catch(() => {
+        .catch((err: unknown) => {
+          playInFlightRef.current = false;
+          if (err instanceof DOMException && err.name === 'AbortError') {
+            return;
+          }
           // Browser blocked unmuted autoplay: immediately fall back to muted autoplay
           video.muted = true;
           setIsMuted(true);
@@ -83,11 +132,13 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
               setIsPlaying(true);
             })
             .catch(() => {
-              // Both unmuted and muted autoplay blocked (e.g. Low Power Mode): show crisp Play button
+              // Both unmuted and muted autoplay blocked: show Play button without spinner
+              stopBuffering();
               setIsPlaying(false);
-              setIsBuffering(false);
             });
         });
+    } else {
+      playInFlightRef.current = false;
     }
   };
 
@@ -95,6 +146,7 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
     const video = videoRef.current;
     if (video) {
       if (video.paused) {
+        userPausedRef.current = false;
         video.muted = isMuted;
         video
           .play()
@@ -102,9 +154,14 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
           .catch(() => {
             video.muted = true;
             setIsMuted(true);
-            video.play().catch(() => setIsPlaying(false));
+            video.play().catch(() => {
+              stopBuffering();
+              setIsPlaying(false);
+            });
           });
       } else {
+        userPausedRef.current = true;
+        stopBuffering();
         video.pause();
         setIsPlaying(false);
       }
@@ -131,10 +188,10 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
   // Trigger initial playback when modal opens with a native video
   useEffect(() => {
     const video = videoRef.current;
-    if (!project?.videoUrl || !video) return;
+    if (!resolvedVideoUrl || !video) return;
     attemptPlay(video);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project?.id, project?.videoUrl]);
+  }, [project?.id, resolvedVideoUrl]);
 
   // Keep muted property synced
   useEffect(() => {
@@ -179,8 +236,8 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
     }
   };
 
-  const embedUrl = project?.videoUrl ? getEmbedUrl(project.videoUrl) : null;
-  const isNativeVideo = Boolean(project?.videoUrl && !embedUrl);
+  const embedUrl = resolvedVideoUrl ? getEmbedUrl(resolvedVideoUrl) : null;
+  const isNativeVideo = Boolean(resolvedVideoUrl && !embedUrl);
 
   return (
     <AnimatePresence>
@@ -254,37 +311,56 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                   <video
                     key={project.id}
                     ref={videoRef}
-                    src={project.videoUrl}
+                    src={resolvedVideoUrl}
                     poster={project.thumbnail}
                     preload="auto"
                     playsInline
                     loop
                     onClick={togglePlayback}
                     onLoadStart={() => {
-                      setIsBuffering(true);
                       setVideoLoadError(false);
+                      scheduleBufferingNotice(800);
                     }}
                     onLoadedMetadata={() => {
                       if (videoRef.current?.duration) {
                         setVideoDurationSec(videoRef.current.duration);
                       }
                     }}
-                    onCanPlay={() => setIsBuffering(false)}
+                    onLoadedData={() => {
+                      stopBuffering();
+                    }}
+                    onCanPlay={() => {
+                      stopBuffering();
+                      if (videoRef.current && videoRef.current.paused && !userPausedRef.current && !videoLoadError) {
+                        attemptPlay(videoRef.current);
+                      }
+                    }}
+                    onCanPlayThrough={() => {
+                      stopBuffering();
+                    }}
                     onPlaying={() => {
+                      stopBuffering();
                       setIsPlaying(true);
-                      setIsBuffering(false);
                       setHasStartedPlaying(true);
                       setVideoLoadError(false);
                     }}
-                    onPause={() => setIsPlaying(false)}
-                    onWaiting={() => setIsBuffering(true)}
+                    onPause={() => {
+                      stopBuffering();
+                      setIsPlaying(false);
+                    }}
+                    onWaiting={() => {
+                      if (!userPausedRef.current) {
+                        scheduleBufferingNotice(500);
+                      }
+                    }}
                     onError={() => {
-                      setIsBuffering(false);
+                      stopBuffering();
                       setVideoLoadError(true);
                     }}
                     onTimeUpdate={() => {
                       if (!videoRef.current || !videoRef.current.duration) return;
-                      if (videoRef.current.currentTime > 0.05) {
+                      if (videoRef.current.currentTime > 0.02) {
+                        stopBuffering();
                         setHasStartedPlaying(true);
                       }
                       setCurrentTimeSec(videoRef.current.currentTime);
@@ -326,11 +402,11 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                     </button>
                   )}
 
-                  {isPlaying && isBuffering && !videoLoadError && (
+                  {isPlaying && isBuffering && !hasStartedPlaying && !videoLoadError && (
                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                       <div className="inline-flex items-center gap-2 rounded-full border border-orange-400/40 bg-black/75 px-4 py-2 text-xs font-medium text-orange-200 backdrop-blur-md">
                         <Loader2 className="h-4 w-4 animate-spin text-orange-400" />
-                        Loading video...
+                        Buffering...
                       </div>
                     </div>
                   )}
@@ -342,7 +418,9 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                         type="button"
                         onClick={() => {
                           setVideoLoadError(false);
-                          setIsBuffering(true);
+                          userPausedRef.current = false;
+                          prioritizeVideoPreload(project.videoUrl);
+                          scheduleBufferingNotice(500);
                           if (videoRef.current) {
                             videoRef.current.load();
                             attemptPlay(videoRef.current);

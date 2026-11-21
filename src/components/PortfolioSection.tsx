@@ -8,6 +8,7 @@ import {
   type PortfolioCategory,
   type PortfolioProject,
 } from '../data/portfolioData';
+import {prioritizeVideoPreload, usePreloadedVideoUrl} from '../utils/videoPreloader';
 
 interface PortfolioSectionProps {
   onSelectProject: (project: PortfolioProject) => void;
@@ -27,6 +28,12 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [posterError, setPosterError] = useState(false);
+  const {src: preloadedSrc, isReadyInMemory} = usePreloadedVideoUrl(project.videoUrl);
+  const activeSrcRef = useRef<string | undefined>(preloadedSrc);
+  if (!isHovered) {
+    activeSrcRef.current = preloadedSrc;
+  }
+  const effectiveSrc = activeSrcRef.current ?? preloadedSrc;
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -41,11 +48,14 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
   };
 
   const prewarmVideo = () => {
+    prioritizeVideoPreload(project.videoUrl);
     const video = videoPreviewRef.current;
     if (!video) return;
     if (video.preload !== 'auto') {
       video.preload = 'auto';
-      video.load();
+      if (video.readyState === 0) {
+        video.load();
+      }
     }
   };
 
@@ -92,7 +102,10 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
           onPointerDown={prewarmVideo}
           onTouchStart={prewarmVideo}
           onFocus={prewarmVideo}
-          onClick={() => onSelect(project)}
+          onClick={() => {
+            prioritizeVideoPreload(project.videoUrl);
+            onSelect(project);
+          }}
           aria-label={`Play ${project.title}`}
           className="relative flex h-full w-full flex-col text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
         >
@@ -118,14 +131,14 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
               </div>
             )}
 
-            {project.videoUrl && !videoError && (
+            {effectiveSrc && !videoError && (
               <video
                 ref={videoPreviewRef}
-                src={project.videoUrl}
+                src={effectiveSrc}
                 muted
                 loop
                 playsInline
-                preload={isFeaturedSlot ? 'metadata' : 'none'}
+                preload={isReadyInMemory || isFeaturedSlot ? 'auto' : 'metadata'}
                 onPlaying={() => setIsPreviewPlaying(true)}
                 onPause={() => setIsPreviewPlaying(false)}
                 onError={() => {
