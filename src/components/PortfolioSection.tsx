@@ -40,8 +40,18 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
     });
   };
 
+  const prewarmVideo = () => {
+    const video = videoPreviewRef.current;
+    if (!video) return;
+    if (video.preload !== 'auto') {
+      video.preload = 'auto';
+      video.load();
+    }
+  };
+
   const handleMouseEnter = () => {
     setIsHovered(true);
+    prewarmVideo();
     if (videoPreviewRef.current && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       videoPreviewRef.current.play().catch(() => {});
     }
@@ -79,6 +89,9 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
         <button
           type="button"
           data-cursor="watch"
+          onPointerDown={prewarmVideo}
+          onTouchStart={prewarmVideo}
+          onFocus={prewarmVideo}
           onClick={() => onSelect(project)}
           aria-label={`Play ${project.title}`}
           className="relative flex h-full w-full flex-col text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
@@ -112,7 +125,7 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
                 muted
                 loop
                 playsInline
-                preload="none"
+                preload={isFeaturedSlot ? 'metadata' : 'none'}
                 onPlaying={() => setIsPreviewPlaying(true)}
                 onPause={() => setIsPreviewPlaying(false)}
                 onError={() => {
