@@ -23,6 +23,8 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
   const [tilt, setTilt] = useState({rotateX: 0, rotateY: 0});
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [posterError, setPosterError] = useState(false);
 
@@ -39,6 +41,7 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
   };
 
   const handleMouseEnter = () => {
+    setIsHovered(true);
     if (videoPreviewRef.current && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       videoPreviewRef.current.play().catch(() => {});
     }
@@ -46,6 +49,8 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
 
   const handleMouseLeave = () => {
     setTilt({rotateX: 0, rotateY: 0});
+    setIsHovered(false);
+    setIsPreviewPlaying(false);
     if (videoPreviewRef.current) {
       videoPreviewRef.current.pause();
     }
@@ -84,23 +89,11 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
               isFeaturedSlot ? 'aspect-[16/10] lg:h-full lg:min-h-[420px]' : 'aspect-[16/10]'
             }`}
           >
-            {project.videoUrl && !videoError ? (
-              <video
-                ref={videoPreviewRef}
-                src={project.videoUrl}
-                poster={project.thumbnail}
-                muted
-                loop
-                playsInline
-                preload="none"
-                onError={() => setVideoError(true)}
-                className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
-              />
-            ) : !posterError ? (
+            {!posterError ? (
               <img
                 src={project.thumbnail}
                 alt={project.title}
-                loading="lazy"
+                loading={isFeaturedSlot ? 'eager' : 'lazy'}
                 referrerPolicy="no-referrer"
                 onError={() => setPosterError(true)}
                 className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
@@ -110,6 +103,26 @@ function ProjectCard({project, isFeaturedSlot, onSelect}: TiltCardProps) {
                 <Film className="h-8 w-8 text-orange-400" />
                 <span className="mt-2 text-sm font-medium text-zinc-200">{project.title}</span>
               </div>
+            )}
+
+            {project.videoUrl && !videoError && (
+              <video
+                ref={videoPreviewRef}
+                src={project.videoUrl}
+                muted
+                loop
+                playsInline
+                preload="none"
+                onPlaying={() => setIsPreviewPlaying(true)}
+                onPause={() => setIsPreviewPlaying(false)}
+                onError={() => {
+                  setVideoError(true);
+                  setIsPreviewPlaying(false);
+                }}
+                className={`pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-300 ${
+                  isHovered && isPreviewPlaying ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
             )}
 
             {/* Measured contrast scrim */}

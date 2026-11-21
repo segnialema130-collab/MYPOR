@@ -38,11 +38,13 @@ function formatSeconds(total: number): string {
 export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+  const [autoMutedNotice, setAutoMutedNotice] = useState(false);
   const [gradeSplit, setGradeSplit] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
   const [videoDurationSec, setVideoDurationSec] = useState<number | null>(null);
   const [isBuffering, setIsBuffering] = useState(false);
+  const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
   const [videoLoadError, setVideoLoadError] = useState(false);
   const totalDemoSec = 24;
 
@@ -52,15 +54,66 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
   // Reset playback state when switching projects
   useEffect(() => {
     setIsPlaying(true);
+    setAutoMutedNotice(false);
     setProgress(0);
     setCurrentTimeSec(0);
     setVideoDurationSec(null);
     setIsBuffering(Boolean(project?.videoUrl));
+    setHasStartedPlaying(false);
     setVideoLoadError(false);
     setGradeSplit(false);
   }, [project?.id, project?.videoUrl]);
 
-  // ESC key handler
+  const attemptPlay = (video: HTMLVideoElement) => {
+    video.muted = isMuted;
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch(() => {
+          // Browser blocked unmuted autoplay: immediately fall back to muted autoplay
+          video.muted = true;
+          setIsMuted(true);
+          setAutoMutedNotice(true);
+          video
+            .play()
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch(() => {
+              // Both unmuted and muted autoplay blocked (e.g. Low Power Mode): show crisp Play button
+              setIsPlaying(false);
+              setIsBuffering(false);
+            });
+        });
+    }
+  };
+
+  const togglePlayback = () => {
+    const video = videoRef.current;
+    if (video) {
+      if (video.paused) {
+        video.muted = isMuted;
+        video
+          .play()
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            video.muted = true;
+            setIsMuted(true);
+            video.play().catch(() => setIsPlaying(false));
+          });
+      } else {
+        video.pause();
+        setIsPlaying(false);
+      }
+      return;
+    }
+    setIsPlaying((prev) => !prev);
+  };
+
+  // ESC & Space key handler
   useEffect(() => {
     if (!project) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -68,23 +121,30 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
         onClose();
       } else if (e.key === ' ') {
         e.preventDefault();
-        setIsPlaying((prev) => !prev);
+        togglePlayback();
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [project, onClose]);
+  });
 
-  // Sync HTML5 video play/pause & mute
+  // Trigger initial playback when modal opens with a native video
   useEffect(() => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = isMuted;
-    if (isPlaying) {
-      videoRef.current.play().catch(() => {});
-    } else {
-      videoRef.current.pause();
+    const video = videoRef.current;
+    if (!project?.videoUrl || !video) return;
+    attemptPlay(video);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project?.id, project?.videoUrl]);
+
+  // Keep muted property synced
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = isMuted;
+      if (!isMuted) {
+        setAutoMutedNotice(false);
+      }
     }
-  }, [isPlaying, isMuted, project?.videoUrl]);
+  }, [isMuted]);
 
   // Procedural cinema preview timer when no external videoUrl is supplied
   useEffect(() => {
@@ -182,15 +242,24 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                 />
               ) : isNativeVideo ? (
                 <div className="relative h-full w-full bg-black">
+                  {/* Show real video poster cleanly until the video actually begins rendering frames */}
+                  {!hasStartedPlaying && project.thumbnail && (
+                    <img
+                      src={project.thumbnail}
+                      alt={project.title}
+                      className="pointer-events-none absolute inset-0 h-full w-full object-contain bg-black"
+                    />
+                  )}
+
                   <video
+                    key={project.id}
                     ref={videoRef}
                     src={project.videoUrl}
                     poster={project.thumbnail}
                     preload="auto"
                     playsInline
-                    autoPlay
                     loop
-                    onClick={() => setIsPlaying((p) => !p)}
+                    onClick={togglePlayback}
                     onLoadStart={() => {
                       setIsBuffering(true);
                       setVideoLoadError(false);
@@ -202,9 +271,12 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                     }}
                     onCanPlay={() => setIsBuffering(false)}
                     onPlaying={() => {
+                      setIsPlaying(true);
                       setIsBuffering(false);
+                      setHasStartedPlaying(true);
                       setVideoLoadError(false);
                     }}
+                    onPause={() => setIsPlaying(false)}
                     onWaiting={() => setIsBuffering(true)}
                     onError={() => {
                       setIsBuffering(false);
@@ -212,14 +284,50 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                     }}
                     onTimeUpdate={() => {
                       if (!videoRef.current || !videoRef.current.duration) return;
+                      if (videoRef.current.currentTime > 0.05) {
+                        setHasStartedPlaying(true);
+                      }
                       setCurrentTimeSec(videoRef.current.currentTime);
                       setProgress((videoRef.current.currentTime / videoRef.current.duration) * 100);
                     }}
-                    className="h-full w-full object-contain bg-black cursor-pointer"
+                    className={`relative h-full w-full object-contain cursor-pointer transition-opacity duration-200 ${
+                      hasStartedPlaying ? 'opacity-100' : 'opacity-0'
+                    }`}
                   />
 
-                  {isBuffering && !videoLoadError && (
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/35">
+                  {autoMutedNotice && isMuted && isPlaying && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMuted(false);
+                        setAutoMutedNotice(false);
+                        if (videoRef.current) {
+                          videoRef.current.muted = false;
+                        }
+                      }}
+                      className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-orange-400/50 bg-black/75 px-3.5 py-1.5 text-xs font-medium text-orange-200 backdrop-blur-md hover:bg-orange-500 hover:text-black transition-colors cursor-pointer"
+                    >
+                      <VolumeX className="h-3.5 w-3.5" />
+                      Tap for Sound
+                    </button>
+                  )}
+
+                  {!isPlaying && !videoLoadError && (
+                    <button
+                      type="button"
+                      onClick={togglePlayback}
+                      aria-label="Play video"
+                      className="absolute inset-0 flex items-center justify-center bg-black/25 cursor-pointer focus-visible:outline-none"
+                    >
+                      <span className="inline-flex h-16 w-16 items-center justify-center rounded-full border border-orange-400/60 bg-black/75 backdrop-blur-md text-white shadow-[0_0_28px_rgba(249,115,22,0.4)] transition-transform hover:scale-105">
+                        <Play className="h-7 w-7 fill-current translate-x-[2px]" />
+                      </span>
+                    </button>
+                  )}
+
+                  {isPlaying && isBuffering && !videoLoadError && (
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                       <div className="inline-flex items-center gap-2 rounded-full border border-orange-400/40 bg-black/75 px-4 py-2 text-xs font-medium text-orange-200 backdrop-blur-md">
                         <Loader2 className="h-4 w-4 animate-spin text-orange-400" />
                         Loading video...
@@ -235,8 +343,10 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                         onClick={() => {
                           setVideoLoadError(false);
                           setIsBuffering(true);
-                          videoRef.current?.load();
-                          videoRef.current?.play().catch(() => {});
+                          if (videoRef.current) {
+                            videoRef.current.load();
+                            attemptPlay(videoRef.current);
+                          }
                         }}
                         className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2 text-xs font-semibold text-black hover:from-orange-400 hover:to-amber-400 cursor-pointer"
                       >
@@ -337,7 +447,7 @@ export function VideoPreviewModal({project, onClose}: VideoPreviewModalProps) {
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
-                        onClick={() => setIsPlaying((p) => !p)}
+                        onClick={togglePlayback}
                         aria-label={isPlaying ? 'Pause' : 'Play'}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white hover:bg-white/10 cursor-pointer"
                       >
