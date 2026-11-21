@@ -9,36 +9,36 @@ export function Footer({onOpenInbox}: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-orange-500/15 bg-[#050505]/75 backdrop-blur-md py-12">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <footer className="border-t-2 border-orange-500/40 bg-gradient-to-b from-[#241207] via-[#1A0D05] to-[#110803] shadow-[0_-12px_40px_rgba(234,88,12,0.14)] py-14">
+      <div className="mx-auto max-w-[1380px] px-6 sm:px-8">
         <div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
           <div>
             <a
               href="#home"
-              className="font-display text-lg font-bold tracking-[0.14em] text-white"
+              className="font-display text-2xl font-bold tracking-[0.16em] bg-gradient-to-r from-white via-amber-100 to-orange-300 bg-clip-text text-transparent"
             >
               {BRAND_CONFIG.brandName}
             </a>
-            <p className="mt-1.5 text-sm text-zinc-400">{BRAND_CONFIG.tagline}</p>
+            <p className="mt-2 text-sm text-orange-100/75">{BRAND_CONFIG.tagline}</p>
           </div>
 
-          <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-6 text-sm text-zinc-400">
-            <a href="#home" className="hover:text-orange-300 transition-colors">
+          <nav aria-label="Footer navigation" className="flex flex-wrap items-center gap-6 text-base font-medium text-orange-50/90">
+            <a href="#home" className="hover:text-amber-300 transition-colors">
               Home
             </a>
-            <a href="#about" className="hover:text-orange-300 transition-colors">
+            <a href="#about" className="hover:text-amber-300 transition-colors">
               About
             </a>
-            <a href="#services" className="hover:text-orange-300 transition-colors">
+            <a href="#services" className="hover:text-amber-300 transition-colors">
               Services
             </a>
-            <a href="#portfolio" className="hover:text-orange-300 transition-colors">
+            <a href="#portfolio" className="hover:text-amber-300 transition-colors">
               Portfolio
             </a>
-            <a href="#process" className="hover:text-orange-300 transition-colors">
+            <a href="#process" className="hover:text-amber-300 transition-colors">
               Process
             </a>
-            <a href="#contact" className="hover:text-orange-300 transition-colors">
+            <a href="#contact" className="hover:text-amber-300 transition-colors">
               Contact
             </a>
           </nav>
@@ -49,7 +49,7 @@ export function Footer({onOpenInbox}: FooterProps) {
               target="_blank"
               rel="noreferrer"
               aria-label="YouTube"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-zinc-900/70 text-zinc-400 transition-colors hover:border-orange-400/50 hover:text-orange-300"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-orange-400/25 bg-[#2D1709]/85 text-orange-100 transition-colors hover:border-amber-300 hover:bg-orange-500 hover:text-black"
             >
               <Youtube className="h-4 w-4" />
             </a>
@@ -58,7 +58,7 @@ export function Footer({onOpenInbox}: FooterProps) {
               target="_blank"
               rel="noreferrer"
               aria-label="Instagram"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-zinc-900/70 text-zinc-400 transition-colors hover:border-orange-400/50 hover:text-orange-300"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-orange-400/25 bg-[#2D1709]/85 text-orange-100 transition-colors hover:border-amber-300 hover:bg-orange-500 hover:text-black"
             >
               <Instagram className="h-4 w-4" />
             </a>
@@ -67,7 +67,7 @@ export function Footer({onOpenInbox}: FooterProps) {
               target="_blank"
               rel="noreferrer"
               aria-label="Telegram"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-zinc-900/70 text-zinc-400 transition-colors hover:border-orange-400/50 hover:text-orange-300"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-orange-400/25 bg-[#2D1709]/85 text-orange-100 transition-colors hover:border-amber-300 hover:bg-orange-500 hover:text-black"
             >
               <Send className="h-4 w-4" />
             </a>
@@ -76,21 +76,21 @@ export function Footer({onOpenInbox}: FooterProps) {
               target="_blank"
               rel="noreferrer"
               aria-label="WhatsApp"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-zinc-900/70 text-zinc-400 transition-colors hover:border-orange-400/50 hover:text-orange-300"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-orange-400/25 bg-[#2D1709]/85 text-orange-100 transition-colors hover:border-amber-300 hover:bg-orange-500 hover:text-black"
             >
               <MessageCircle className="h-4 w-4" />
             </a>
             <a
               href={`mailto:${BRAND_CONFIG.contact.email}`}
               aria-label="Email"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-zinc-900/70 text-zinc-400 transition-colors hover:border-orange-400/50 hover:text-orange-300"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-orange-400/25 bg-[#2D1709]/85 text-orange-100 transition-colors hover:border-amber-300 hover:bg-orange-500 hover:text-black"
             >
               <Mail className="h-4 w-4" />
             </a>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-orange-500/12 pt-6 flex flex-col justify-between gap-3 text-xs text-zinc-500 sm:flex-row sm:items-center">
+        <div className="mt-8 border-t border-orange-400/20 pt-6 flex flex-col justify-between gap-3 text-xs text-orange-100/70 sm:flex-row sm:items-center">
           <p>
             &copy; {currentYear} {BRAND_CONFIG.editorName} ({BRAND_CONFIG.brandName}). All rights reserved.
           </p>
@@ -99,7 +99,7 @@ export function Footer({onOpenInbox}: FooterProps) {
             <button
               type="button"
               onClick={onOpenInbox}
-              className="inline-flex items-center gap-1.5 text-zinc-400 transition-colors hover:text-orange-300 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-amber-200 transition-colors hover:text-white cursor-pointer"
             >
               <Inbox className="h-3.5 w-3.5" />
               Client Inbox

@@ -89,7 +89,7 @@ export function ContactSection() {
           email: cleanEmail,
           projectType,
           message: cleanMessage,
-          _subject: `[SEGNI EDITOR] ${projectType} from ${cleanName}`,
+          _subject: `[PORTFOLIO] ${projectType} from ${cleanName}`,
           _captcha: 'false',
         }),
       });
@@ -119,37 +119,37 @@ export function ContactSection() {
   const formattedText = `Hi Segni, I'm ${name.trim() || 'a client'} (${email.trim()}).\nProject: ${projectType}\n\n${message.trim()}`;
   const whatsappDirectHref = `${BRAND_CONFIG.contact.whatsappUrl}?text=${encodeURIComponent(formattedText)}`;
   const mailtoDirectHref = `mailto:${BRAND_CONFIG.contact.email}?subject=${encodeURIComponent(
-    `[SEGNI EDITOR] ${projectType} from ${name.trim() || 'Portfolio Visitor'}`,
+    `[PORTFOLIO] ${projectType} from ${name.trim() || 'Portfolio Visitor'}`,
   )}&body=${encodeURIComponent(formattedText)}`;
 
   return (
-    <section id="contact" className="py-20 lg:py-28">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <section id="contact" className="py-24 lg:py-36">
+      <div className="mx-auto max-w-[1380px] px-6 sm:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Left Column: CTA & Direct Contact Channels */}
           <div className="lg:col-span-5">
-            <p className="text-sm font-medium text-orange-400">Start a Project</p>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <p className="text-lg sm:text-xl font-semibold tracking-wide text-orange-400">Start a Project</p>
+            <h2 className="mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
               Let&apos;s Create Something Amazing Together.
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-zinc-300">
+            <p className="mt-5 text-lg leading-relaxed text-zinc-300">
               Enter your name, email, and idea in the form to send it straight to Segni&apos;s Client Inbox—or reach out
               instantly via WhatsApp or Telegram.
             </p>
 
             {/* Contact Channel Rows */}
-            <div className="mt-8 space-y-3">
+            <div className="mt-9 space-y-3.5">
               {/* WhatsApp */}
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-4 py-3.5">
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-5 py-4">
                 <a
                   href={BRAND_CONFIG.contact.whatsappUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex min-w-0 items-center gap-3 text-sm text-zinc-200 hover:text-white transition-colors"
+                  className="flex min-w-0 items-center gap-3.5 text-base text-zinc-200 hover:text-white transition-colors"
                 >
-                  <MessageCircle className="h-4 w-4 shrink-0 text-orange-400" />
+                  <MessageCircle className="h-5 w-5 shrink-0 text-orange-400" />
                   <div className="min-w-0">
-                    <span className="block text-xs text-zinc-400">WhatsApp</span>
+                    <span className="block text-sm text-zinc-400">WhatsApp</span>
                     <span className="block truncate font-medium font-mono tabular-nums">
                       {BRAND_CONFIG.contact.whatsappNumber}
                     </span>
@@ -159,7 +159,7 @@ export function ContactSection() {
                   type="button"
                   onClick={() => handleCopy('whatsapp', BRAND_CONFIG.contact.whatsappNumber)}
                   aria-label="Copy WhatsApp number"
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-zinc-900 text-zinc-300 hover:text-orange-300 cursor-pointer"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-zinc-900 text-zinc-300 hover:text-orange-300 cursor-pointer"
                 >
                   {copiedKey === 'whatsapp' ? (
                     <Check className="h-4 w-4 text-orange-400" />
@@ -174,27 +174,27 @@ export function ContactSection() {
                 href={BRAND_CONFIG.contact.telegramUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-4 py-3.5 text-sm text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white"
+                className="flex items-center justify-between gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-5 py-4 text-base text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white"
               >
-                <span className="flex items-center gap-3">
-                  <Send className="h-4 w-4 shrink-0 text-orange-400" />
+                <span className="flex items-center gap-3.5">
+                  <Send className="h-5 w-5 shrink-0 text-orange-400" />
                   <span>
-                    <span className="block text-xs text-zinc-400">Telegram</span>
+                    <span className="block text-sm text-zinc-400">Telegram</span>
                     <span className="block font-medium">{BRAND_CONFIG.contact.telegramHandle}</span>
                   </span>
                 </span>
-                <span className="text-xs text-zinc-400">Message</span>
+                <span className="text-sm text-zinc-400">Message</span>
               </a>
 
               {/* Email */}
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-4 py-3.5">
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-5 py-4">
                 <a
                   href={`mailto:${BRAND_CONFIG.contact.email}`}
-                  className="flex min-w-0 items-center gap-3 text-sm text-zinc-200 hover:text-white transition-colors"
+                  className="flex min-w-0 items-center gap-3.5 text-base text-zinc-200 hover:text-white transition-colors"
                 >
-                  <Mail className="h-4 w-4 shrink-0 text-amber-300" />
+                  <Mail className="h-5 w-5 shrink-0 text-amber-300" />
                   <div className="min-w-0">
-                    <span className="block text-xs text-zinc-400">Email</span>
+                    <span className="block text-sm text-zinc-400">Email</span>
                     <span className="block truncate font-medium">{BRAND_CONFIG.contact.email}</span>
                   </div>
                 </a>
@@ -202,30 +202,30 @@ export function ContactSection() {
                   type="button"
                   onClick={() => handleCopy('email', BRAND_CONFIG.contact.email)}
                   aria-label="Copy email address"
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-zinc-900 text-zinc-300 hover:text-orange-300 cursor-pointer"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-zinc-900 text-zinc-300 hover:text-orange-300 cursor-pointer"
                 >
                   {copiedKey === 'email' ? <Check className="h-4 w-4 text-orange-400" /> : <Copy className="h-4 w-4" />}
                 </button>
               </div>
 
               {/* Social Pair: Instagram & YouTube */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-2 gap-3.5 pt-1">
                 <a
                   href={BRAND_CONFIG.contact.instagramUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-4 py-3 text-sm text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white"
+                  className="flex items-center gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-5 py-3.5 text-base text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white"
                 >
-                  <Instagram className="h-4 w-4 shrink-0 text-orange-400" />
+                  <Instagram className="h-5 w-5 shrink-0 text-orange-400" />
                   <span className="truncate font-medium">Instagram</span>
                 </a>
                 <a
                   href={BRAND_CONFIG.contact.youtubeUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-4 py-3 text-sm text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white"
+                  className="flex items-center gap-3 rounded-xl border border-orange-500/15 bg-[#0E0D0C]/88 backdrop-blur-md px-5 py-3.5 text-base text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white"
                 >
-                  <Youtube className="h-4 w-4 shrink-0 text-orange-400" />
+                  <Youtube className="h-5 w-5 shrink-0 text-orange-400" />
                   <span className="truncate font-medium">YouTube</span>
                 </a>
               </div>
@@ -234,7 +234,7 @@ export function ContactSection() {
 
           {/* Right Column: Instant Client Inbox Submission Form */}
           <div className="lg:col-span-7">
-            <div className="rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/90 backdrop-blur-md p-6 sm:p-8">
+            <div className="rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/90 backdrop-blur-md p-7 sm:p-10">
               {submittedMode ? (
                 <div className="py-10 text-center">
                   <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-orange-400/50 bg-orange-500/15 text-orange-400">
@@ -275,10 +275,10 @@ export function ContactSection() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                <form onSubmit={handleSubmit} noValidate className="space-y-6">
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     <div>
-                      <label htmlFor="contact-name" className="block text-xs font-medium text-zinc-300">
+                      <label htmlFor="contact-name" className="block text-sm font-medium text-zinc-300">
                         Your Name
                       </label>
                       <input
@@ -289,12 +289,12 @@ export function ContactSection() {
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Alex Mercer"
-                        className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
+                        className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-950 px-4 py-3.5 text-base text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="contact-email" className="block text-xs font-medium text-zinc-300">
+                      <label htmlFor="contact-email" className="block text-sm font-medium text-zinc-300">
                         Your Email Address
                       </label>
                       <input
@@ -305,13 +305,13 @@ export function ContactSection() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@studio.com"
-                        className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
+                        className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-950 px-4 py-3.5 text-base text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="contact-service" className="block text-xs font-medium text-zinc-300">
+                    <label htmlFor="contact-service" className="block text-sm font-medium text-zinc-300">
                       Project Category
                     </label>
                     <select
@@ -319,7 +319,7 @@ export function ContactSection() {
                       disabled={sending}
                       value={projectType}
                       onChange={(e) => setProjectType(e.target.value)}
-                      className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-950 px-4 py-3 text-sm text-white focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
+                      className="mt-2 w-full rounded-lg border border-white/15 bg-zinc-950 px-4 py-3.5 text-base text-white focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
                     >
                       {PROJECT_TYPES.map((type) => (
                         <option key={type} value={type} className="bg-zinc-950 text-white">
@@ -330,7 +330,7 @@ export function ContactSection() {
                   </div>
 
                   <div>
-                    <label htmlFor="contact-message" className="block text-xs font-medium text-zinc-300">
+                    <label htmlFor="contact-message" className="block text-sm font-medium text-zinc-300">
                       Your Idea / Comment
                     </label>
                     <textarea
@@ -341,7 +341,7 @@ export function ContactSection() {
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Write your idea, comment, footage details, or project deadline..."
-                      className="mt-2 w-full resize-none rounded-lg border border-white/15 bg-zinc-950 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
+                      className="mt-2 w-full resize-none rounded-lg border border-white/15 bg-zinc-950 px-4 py-3.5 text-base text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 disabled:opacity-60"
                     />
                   </div>
 
@@ -386,16 +386,16 @@ export function ContactSection() {
                   <button
                     type="submit"
                     disabled={sending}
-                    className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 text-sm font-semibold text-black transition-all duration-150 hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_24px_rgba(249,115,22,0.4)] disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                    className="inline-flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 text-base font-bold text-black transition-all duration-150 hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_24px_rgba(249,115,22,0.4)] disabled:opacity-60 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
                   >
                     {sending ? (
                       <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Loader2 className="h-5 w-5 animate-spin" />
                         Sending Message...
                       </>
                     ) : (
                       <>
-                        <Send className="h-4 w-4" />
+                        <Send className="h-5 w-5" />
                         Send Message Directly
                       </>
                     )}

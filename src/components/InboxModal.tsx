@@ -190,7 +190,7 @@ export function InboxModal({open, onClose}: InboxModalProps) {
                 </div>
                 <div>
                   <h3 id="inbox-modal-title" className="font-display text-lg font-bold text-white">
-                    SEGNI EDITOR Client Inbox
+                    PORTFOLIO Client Inbox
                   </h3>
                   <p className="text-xs text-zinc-400">Messages submitted through your portfolio contact form</p>
                 </div>

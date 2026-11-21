@@ -17,12 +17,12 @@ export function TestimonialsSection() {
   const current = TESTIMONIALS[activeIndex];
 
   return (
-    <section id="testimonials" className="border-t border-orange-500/15 bg-[#090808]/55 backdrop-blur-xs py-20 lg:py-28">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <section id="testimonials" className="border-t border-orange-500/15 bg-[#090808]/55 backdrop-blur-xs py-24 lg:py-36">
+      <div className="mx-auto max-w-[1380px] px-6 sm:px-8">
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="text-sm font-medium text-orange-400">Client Feedback</p>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <p className="text-lg sm:text-xl font-semibold tracking-wide text-orange-400">Client Feedback</p>
+            <h2 className="mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
               Trusted by Creators &amp; Brands
             </h2>
           </div>
@@ -32,7 +32,7 @@ export function TestimonialsSection() {
               type="button"
               onClick={handlePrev}
               aria-label="Previous testimonial"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-orange-500/20 bg-[#0E0D0C]/85 text-zinc-200 transition-colors hover:border-orange-400/60 hover:text-orange-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-orange-500/20 bg-[#0E0D0C]/85 text-zinc-200 transition-colors hover:border-orange-400/60 hover:text-orange-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -40,7 +40,7 @@ export function TestimonialsSection() {
               type="button"
               onClick={handleNext}
               aria-label="Next testimonial"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-orange-500/20 bg-[#0E0D0C]/85 text-zinc-200 transition-colors hover:border-orange-400/60 hover:text-orange-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              className="inline-flex h-12 w-12 items-center justify-center rounded-lg border border-orange-500/20 bg-[#0E0D0C]/85 text-zinc-200 transition-colors hover:border-orange-400/60 hover:text-orange-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -48,7 +48,7 @@ export function TestimonialsSection() {
         </div>
 
         {/* Testimonial Slider Card */}
-        <div className="mt-10 overflow-hidden rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/90 backdrop-blur-md p-8 sm:p-12">
+        <div className="mt-12 overflow-hidden rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/90 backdrop-blur-md p-8 sm:p-14">
           <AnimatePresence mode="wait">
             <motion.div
               key={current.id}
@@ -57,21 +57,21 @@ export function TestimonialsSection() {
               exit={{opacity: 0, y: -8}}
               transition={{duration: 0.25, ease: [0.16, 1, 0.3, 1]}}
             >
-              <Quote className="h-8 w-8 text-orange-400/80" aria-hidden="true" />
+              <Quote className="h-10 w-10 text-orange-400/80" aria-hidden="true" />
 
-              <blockquote className="mt-6 max-w-4xl font-sans text-xl italic leading-relaxed text-zinc-100 sm:text-2xl">
+              <blockquote className="mt-6 max-w-5xl font-sans text-2xl italic leading-relaxed text-zinc-100 sm:text-3xl">
                 &ldquo;{current.quote}&rdquo;
               </blockquote>
 
-              <div className="mt-8 flex flex-col justify-between gap-4 border-t border-orange-500/12 pt-6 sm:flex-row sm:items-center">
+              <div className="mt-9 flex flex-col justify-between gap-4 border-t border-orange-500/12 pt-7 sm:flex-row sm:items-center">
                 <div>
-                  <p className="font-display text-base font-semibold text-white">{current.name}</p>
-                  <p className="text-sm text-zinc-400">
+                  <p className="font-display text-lg sm:text-xl font-bold text-white">{current.name}</p>
+                  <p className="mt-0.5 text-base text-zinc-400">
                     {current.role} <span aria-hidden="true">·</span> {current.company}
                   </p>
                 </div>
 
-                <div className="text-sm text-zinc-300">
+                <div className="text-base text-zinc-300">
                   <span className="font-semibold text-orange-400">{current.outcome}</span>
                   <span className="mx-2 text-zinc-500" aria-hidden="true">
                     ·

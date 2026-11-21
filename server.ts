@@ -154,9 +154,9 @@ function escapeHtml(value: string): string {
 
 async function tryOptionalForwarding(inquiry: InquiryRecord): Promise<string[]> {
   const forwarded: string[] = [];
-  const subject = `[SEGNI EDITOR] ${inquiry.projectType} from ${inquiry.name}`;
+  const subject = `[PORTFOLIO] ${inquiry.projectType} from ${inquiry.name}`;
   const textBody = [
-    `New portfolio inquiry for SEGNI EDITOR`,
+    `New portfolio inquiry for Segni Alemayehu`,
     ``,
     `Name: ${inquiry.name}`,
     `Email: ${inquiry.email}`,
@@ -168,7 +168,7 @@ async function tryOptionalForwarding(inquiry: InquiryRecord): Promise<string[]> 
 
   const htmlBody = `
     <div style="font-family: Arial, sans-serif; color: #18181b; line-height: 1.6;">
-      <h2 style="margin-bottom: 12px;">New Portfolio Inquiry — SEGNI EDITOR</h2>
+      <h2 style="margin-bottom: 12px;">New Portfolio Inquiry — PORTFOLIO</h2>
       <p><strong>Name:</strong> ${escapeHtml(inquiry.name)}</p>
       <p><strong>Email:</strong> ${escapeHtml(inquiry.email)}</p>
       <p><strong>Category:</strong> ${escapeHtml(inquiry.projectType)}</p>
@@ -190,7 +190,7 @@ async function tryOptionalForwarding(inquiry: InquiryRecord): Promise<string[]> 
         auth: {user: smtpUser, pass: smtpPass},
       });
       await transporter.sendMail({
-        from: `"SEGNI EDITOR Portfolio" <${smtpUser}>`,
+        from: `"PORTFOLIO Inquiry" <${smtpUser}>`,
         to: TARGET_EMAIL,
         replyTo: inquiry.email,
         subject,
@@ -214,7 +214,7 @@ async function tryOptionalForwarding(inquiry: InquiryRecord): Promise<string[]> 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM || 'SEGNI EDITOR <onboarding@resend.dev>',
+          from: process.env.RESEND_FROM || 'PORTFOLIO <onboarding@resend.dev>',
           to: [TARGET_EMAIL],
           reply_to: inquiry.email,
           subject,
@@ -235,7 +235,7 @@ async function tryOptionalForwarding(inquiry: InquiryRecord): Promise<string[]> 
   const tgChatId = process.env.TELEGRAM_CHAT_ID;
   if (tgToken && tgChatId) {
     try {
-      const tgText = `New SEGNI EDITOR Inquiry\nName: ${inquiry.name}\nEmail: ${inquiry.email}\nCategory: ${inquiry.projectType}\n\n${inquiry.message}`;
+      const tgText = `New PORTFOLIO Inquiry\nName: ${inquiry.name}\nEmail: ${inquiry.email}\nCategory: ${inquiry.projectType}\n\n${inquiry.message}`;
       const tgRes = await fetch(`https://api.telegram.org/bot${encodeURIComponent(tgToken)}/sendMessage`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},

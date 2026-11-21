@@ -8,7 +8,7 @@ export function HeroSection() {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <section id="home" className="relative overflow-hidden pt-28 pb-16 sm:pt-32 lg:pt-36 lg:pb-20">
+    <section id="home" className="relative overflow-hidden pt-32 pb-20 sm:pt-36 lg:pt-40 lg:pb-24">
       {/* Ambient cinematic light atmosphere */}
       <div
         aria-hidden="true"
@@ -19,9 +19,9 @@ export function HeroSection() {
         className="pointer-events-none absolute top-20 right-1/5 h-[360px] w-[360px] rounded-full bg-amber-500/12 blur-[130px]"
       />
 
-      <div className="relative mx-auto max-w-[1280px] px-6">
+      <div className="relative mx-auto max-w-[1380px] px-6 sm:px-8">
         {/* Split-Screen Home / Hero */}
-        <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-12 md:gap-10 lg:gap-12">
+        <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-12 md:gap-10 lg:gap-14">
           {/* Left Column: Typographic Hierarchy & CTAs */}
           <motion.div
             initial={{opacity: 0, y: 18}}
@@ -29,7 +29,7 @@ export function HeroSection() {
             transition={{duration: 0.5, ease: [0.16, 1, 0.3, 1]}}
             className="flex flex-col justify-center md:col-span-7"
           >
-            <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl xl:text-[3.75rem]">
+            <h1 className="font-display text-5xl font-bold leading-[1.06] tracking-tight sm:text-6xl lg:text-7xl xl:text-[5rem]">
               <span className="bg-gradient-to-r from-white via-orange-100 to-amber-200 bg-clip-text text-transparent">
                 {BRAND_CONFIG.editorName},
               </span>{' '}
@@ -38,24 +38,24 @@ export function HeroSection() {
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-zinc-300 sm:text-lg">
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-zinc-300 sm:text-xl lg:text-[1.35rem]">
               I&apos;m Segni Alemayehu, a creative video editor passionate about transforming raw footage into powerful
               visual experiences.
             </p>
 
             {/* Primary & Secondary CTAs */}
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="mt-9 flex flex-wrap items-center gap-4">
               <a
                 href="#portfolio"
-                className="inline-flex min-h-[46px] items-center gap-2.5 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 text-sm font-semibold text-black transition-all duration-150 hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_28px_rgba(249,115,22,0.45)] whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                className="inline-flex min-h-[54px] items-center gap-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-8 py-3.5 text-base font-bold text-black transition-all duration-150 hover:from-orange-400 hover:to-amber-400 hover:shadow-[0_0_28px_rgba(249,115,22,0.45)] whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
               >
                 Explore My Work
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-5 w-5" />
               </a>
 
               <a
                 href="#contact"
-                className="inline-flex min-h-[46px] items-center gap-2 rounded-lg border border-orange-500/25 bg-[#0E0D0C]/80 backdrop-blur-md px-6 py-3 text-sm font-semibold text-zinc-100 transition-colors duration-150 hover:border-orange-400/65 hover:bg-zinc-900/90 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+                className="inline-flex min-h-[54px] items-center gap-2 rounded-lg border border-orange-500/25 bg-[#0E0D0C]/80 backdrop-blur-md px-8 py-3.5 text-base font-bold text-zinc-100 transition-colors duration-150 hover:border-orange-400/65 hover:bg-zinc-900/90 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
               >
                 Hire Me
               </a>
@@ -119,13 +119,13 @@ export function HeroSection() {
             transition={{duration: 0.55, delay: 0.08, ease: [0.16, 1, 0.3, 1]}}
             className="relative flex justify-center md:col-span-5 md:justify-end"
           >
-            <div className="group relative h-72 w-72 sm:h-80 sm:w-80 md:h-[340px] md:w-[340px] lg:h-[380px] lg:w-[380px] overflow-hidden rounded-full border-2 border-orange-500/50 bg-[#0D0B0A] shadow-[0_0_48px_rgba(249,115,22,0.24)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-105 hover:border-amber-300/80 hover:shadow-[0_0_60px_rgba(249,115,22,0.38)] will-change-transform">
+            <div className="group relative h-80 w-80 sm:h-96 sm:w-96 md:h-[380px] md:w-[380px] lg:h-[440px] lg:w-[440px] overflow-hidden rounded-full border-2 border-orange-500/50 bg-[#0D0B0A] shadow-[0_0_48px_rgba(249,115,22,0.24)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:scale-105 hover:border-amber-300/80 hover:shadow-[0_0_60px_rgba(249,115,22,0.38)] will-change-transform">
               {!imgError ? (
                 <img
                   src={portraitSrc}
                   alt="Segni Alemayehu — Creative Video Editor"
-                  width={380}
-                  height={380}
+                  width={440}
+                  height={440}
                   loading="eager"
                   decoding="sync"
                   fetchPriority="high"
@@ -142,10 +142,10 @@ export function HeroSection() {
                 />
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-[#17120E] to-black p-6 text-center">
-                  <span className="font-display text-xl font-bold tracking-wider text-white">
+                  <span className="font-display text-2xl font-bold tracking-wider text-white">
                     {BRAND_CONFIG.brandName}
                   </span>
-                  <span className="mt-1.5 text-xs text-zinc-400">Segni Alemayehu</span>
+                  <span className="mt-1.5 text-sm text-zinc-400">Segni Alemayehu</span>
                 </div>
               )}
             </div>
@@ -153,21 +153,21 @@ export function HeroSection() {
         </div>
 
         {/* Full-Width 4-Column Metrics Row Below Hero Split */}
-        <div className="mt-12 grid grid-cols-2 gap-6 border-t border-orange-500/15 pt-8 md:grid-cols-4">
+        <div className="mt-14 grid grid-cols-2 gap-8 border-t border-orange-500/15 pt-10 md:grid-cols-4">
           {HERO_METRICS.map((metric) => (
             <div key={metric.label} className="flex flex-col">
-              <span className="font-display text-2xl font-bold tracking-tight text-orange-300 tabular-nums sm:text-3xl">
+              <span className="font-display text-3xl font-bold tracking-tight text-orange-300 tabular-nums sm:text-4xl lg:text-5xl">
                 {metric.value}
               </span>
-              <span className="mt-1 text-sm text-zinc-300">{metric.label}</span>
+              <span className="mt-2 text-base font-medium text-zinc-300 sm:text-lg">{metric.label}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Editorial Marquee Divider Ribbon */}
-      <div className="mt-16 border-y border-orange-500/15 bg-[#080707]/70 backdrop-blur-sm py-3.5 overflow-hidden select-none">
-        <div className="animate-marquee text-xs font-medium tracking-[0.22em] text-zinc-300 uppercase">
+      <div className="mt-18 border-y border-orange-500/15 bg-[#080707]/70 backdrop-blur-sm py-4 overflow-hidden select-none">
+        <div className="animate-marquee text-sm font-medium tracking-[0.24em] text-zinc-300 uppercase">
           <span className="mx-6">Selected Works</span>
           <span aria-hidden="true" className="text-orange-400">·</span>
           <span className="mx-6">Cinematic Storytelling</span>

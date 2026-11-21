@@ -90,7 +90,7 @@ export function assetUrl(assetPath: string): string {
 }
 
 export const BRAND_CONFIG = {
-  brandName: 'SEGNI EDITOR',
+  brandName: 'PORTFOLIO',
   editorName: 'Segni Alemayehu',
   tagline: 'Your Vision, My Creativity.',
   location: 'Available Worldwide · Remote Post-Production',
@@ -139,7 +139,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     category: 'Portfolio Videos',
     duration: '00:23',
     year: '2026',
-    client: 'SEGNI EDITOR · Signature Intro',
+    client: 'PORTFOLIO · Signature Intro',
     aspectLabel: '16:9 Widescreen',
     description:
       'Personal introduction and work showcase blending kinetic 3D card transitions, motion-blurred warm lighting, and signature narrative edits.',
@@ -155,7 +155,7 @@ export const PORTFOLIO_PROJECTS: PortfolioProject[] = [
     category: 'Portfolio Videos',
     duration: '00:19',
     year: '2026',
-    client: 'SEGNI EDITOR · Client Pitch Reel',
+    client: 'PORTFOLIO · Client Pitch Reel',
     aspectLabel: '9:16 Vertical',
     description:
       'High-retention kinetic typography and 3D icon choreography demonstrating how raw talking-head footage transforms into structured visual storytelling.',

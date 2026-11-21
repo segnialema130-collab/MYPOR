@@ -22,8 +22,8 @@ const ABOUT_PILLARS = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-20 lg:py-28">
-      <div className="mx-auto max-w-[1280px] px-6">
+    <section id="about" className="py-24 lg:py-36">
+      <div className="mx-auto max-w-[1380px] px-6 sm:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
           {/* Left Intro Column */}
           <motion.div
@@ -33,25 +33,25 @@ export function AboutSection() {
             transition={{duration: 0.45, ease: [0.16, 1, 0.3, 1]}}
             className="lg:col-span-5"
           >
-            <p className="text-sm font-medium text-orange-400">About Me</p>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            <p className="text-lg sm:text-xl font-semibold tracking-wide text-orange-400">About Me</p>
+            <h2 className="mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
               Crafting Emotion, Rhythm, and Clarity in Every Cut
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-zinc-300">
-              I&apos;m <strong className="font-semibold text-white">{BRAND_CONFIG.editorName}</strong>, founder of{' '}
-              <strong className="font-semibold text-white">{BRAND_CONFIG.brandName}</strong>. I partner with YouTube
+            <p className="mt-6 text-lg leading-relaxed text-zinc-300 sm:text-xl">
+              Welcome to my <strong className="font-semibold text-white">{BRAND_CONFIG.brandName}</strong>. I&apos;m{' '}
+              <strong className="font-semibold text-white">{BRAND_CONFIG.editorName}</strong>, partnering with YouTube
               creators, ambitious startups, and commercial directors to turn unpolished camera cards into films that
               command attention from the opening second.
             </p>
 
-            <div className="mt-8 border-t border-orange-500/15 pt-6 flex flex-wrap gap-x-8 gap-y-4 text-sm text-zinc-300">
+            <div className="mt-10 border-t border-orange-500/15 pt-7 flex flex-wrap gap-x-10 gap-y-5 text-base text-zinc-300">
               <div>
-                <span className="block text-xs text-zinc-400">Primary Focus</span>
-                <span className="font-medium text-white">Cinematic &amp; Retention Editing</span>
+                <span className="block text-sm text-zinc-400">Primary Focus</span>
+                <span className="mt-1 block text-lg font-semibold text-white">Cinematic &amp; Retention Editing</span>
               </div>
               <div>
-                <span className="block text-xs text-zinc-400">Availability</span>
-                <span className="font-medium text-white">Freelance &amp; Retainers</span>
+                <span className="block text-sm text-zinc-400">Availability</span>
+                <span className="mt-1 block text-lg font-semibold text-white">Freelance &amp; Retainers</span>
               </div>
             </div>
           </motion.div>
@@ -65,11 +65,11 @@ export function AboutSection() {
                 whileInView={{opacity: 1, y: 0}}
                 viewport={{once: true, margin: '-60px'}}
                 transition={{duration: 0.4, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1]}}
-                className="rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/85 backdrop-blur-md p-6 transition-colors duration-200 hover:border-orange-400/55 hover:bg-[#141210]/90"
+                className="rounded-2xl border border-orange-500/15 bg-[#0E0D0C]/85 backdrop-blur-md p-7 sm:p-8 transition-colors duration-200 hover:border-orange-400/55 hover:bg-[#141210]/90"
               >
-                <span className="font-mono text-xs text-orange-400 tabular-nums">0{idx + 1}.</span>
-                <h3 className="mt-2 font-display text-xl font-semibold text-white">{pillar.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-300">{pillar.body}</p>
+                <span className="font-mono text-sm font-semibold text-orange-400 tabular-nums">0{idx + 1}.</span>
+                <h3 className="mt-3 font-display text-2xl font-bold text-white">{pillar.title}</h3>
+                <p className="mt-3.5 text-base leading-relaxed text-zinc-300">{pillar.body}</p>
               </motion.article>
             ))}
           </div>
