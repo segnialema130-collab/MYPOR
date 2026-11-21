@@ -95,6 +95,8 @@ export const BRAND_CONFIG = {
   tagline: 'Your Vision, My Creativity.',
   location: 'Available Worldwide · Remote Post-Production',
   heroPortrait: assetUrl('/assets/aistudio/segni_portrait.webp'),
+  cvUrl: assetUrl('/assets/aistudio/Segni_Alemayehu_Video_Editor_CV_Updated_175f310d.pdf'),
+  cvDownloadName: 'Segni_Alemayehu_Video_Editor_CV.pdf',
   contact: {
     email: 'segnialema130@gmail.com',
     whatsappNumber: '+251 963749142',

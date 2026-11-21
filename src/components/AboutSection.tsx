@@ -1,5 +1,12 @@
+import {useState, type MouseEvent} from 'react';
 import {motion} from 'motion/react';
+import {Check, Download, FileText, Loader2} from 'lucide-react';
 import {BRAND_CONFIG} from '../data/portfolioData';
+import {downloadCvPdf} from '../utils/cvDownload';
+
+interface AboutSectionProps {
+  onOpenCv: () => void;
+}
 
 const ABOUT_PILLARS = [
   {
@@ -20,7 +27,22 @@ const ABOUT_PILLARS = [
   },
 ];
 
-export function AboutSection() {
+export function AboutSection({onOpenCv}: AboutSectionProps) {
+  const [cvState, setCvState] = useState<'idle' | 'loading' | 'done'>('idle');
+
+  const handleCvDownload = async (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (cvState === 'loading') return;
+    setCvState('loading');
+    const result = await downloadCvPdf();
+    if (result.ok) {
+      setCvState('done');
+      window.setTimeout(() => setCvState('idle'), 2800);
+    } else {
+      setCvState('idle');
+      onOpenCv();
+    }
+  };
   return (
     <section id="about" className="py-24 lg:py-36">
       <div className="mx-auto max-w-[1380px] px-6 sm:px-8">
@@ -53,6 +75,42 @@ export function AboutSection() {
                 <span className="block text-sm text-zinc-400">Availability</span>
                 <span className="mt-1 block text-lg font-semibold text-white">Freelance &amp; Retainers</span>
               </div>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+              <a
+                href={BRAND_CONFIG.cvUrl}
+                download={BRAND_CONFIG.cvDownloadName}
+                type="application/pdf"
+                onClick={handleCvDownload}
+                className="inline-flex min-h-[48px] items-center gap-2.5 rounded-lg border border-orange-400/45 bg-gradient-to-r from-orange-500/15 to-amber-500/15 px-6 py-3 text-base font-bold text-amber-200 transition-all duration-150 hover:border-amber-300 hover:from-orange-500 hover:to-amber-400 hover:text-black whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              >
+                {cvState === 'loading' ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Downloading PDF...
+                  </>
+                ) : cvState === 'done' ? (
+                  <>
+                    <Check className="h-5 w-5" />
+                    CV Downloaded
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-5 w-5" />
+                    Download CV
+                  </>
+                )}
+              </a>
+
+              <button
+                type="button"
+                onClick={onOpenCv}
+                className="inline-flex min-h-[48px] items-center gap-2 rounded-lg border border-white/15 bg-[#0E0D0C]/85 px-5 py-3 text-base font-semibold text-zinc-200 transition-colors hover:border-orange-400/55 hover:text-white whitespace-nowrap shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+              >
+                <FileText className="h-5 w-5 text-orange-400" />
+                Read CV
+              </button>
             </div>
           </motion.div>
 

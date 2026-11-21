@@ -1,5 +1,7 @@
-import {Inbox, Instagram, Mail, MessageCircle, Send, Youtube} from 'lucide-react';
+import type {MouseEvent} from 'react';
+import {Download, Inbox, Instagram, Mail, MessageCircle, Send, Youtube} from 'lucide-react';
 import {BRAND_CONFIG} from '../data/portfolioData';
+import {downloadCvPdf} from '../utils/cvDownload';
 
 interface FooterProps {
   onOpenInbox: () => void;
@@ -94,8 +96,21 @@ export function Footer({onOpenInbox}: FooterProps) {
           <p>
             &copy; {currentYear} {BRAND_CONFIG.editorName} ({BRAND_CONFIG.brandName}). All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-5">
             <span>{BRAND_CONFIG.location}</span>
+            <a
+              href={BRAND_CONFIG.cvUrl}
+              download={BRAND_CONFIG.cvDownloadName}
+              type="application/pdf"
+              onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault();
+                void downloadCvPdf();
+              }}
+              className="inline-flex items-center gap-1.5 font-medium text-amber-200 transition-colors hover:text-white"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download CV
+            </a>
             <button
               type="button"
               onClick={onOpenInbox}

@@ -1,11 +1,26 @@
-import {useState} from 'react';
+import {useState, type MouseEvent} from 'react';
 import {motion} from 'motion/react';
-import {ArrowRight, Instagram, Mail, MessageCircle, Send, Youtube} from 'lucide-react';
+import {ArrowRight, Check, Download, Instagram, Loader2, Mail, MessageCircle, Send, Youtube} from 'lucide-react';
 import {assetUrl, BRAND_CONFIG, HERO_METRICS} from '../data/portfolioData';
+import {downloadCvPdf} from '../utils/cvDownload';
 
 export function HeroSection() {
   const [portraitSrc, setPortraitSrc] = useState(BRAND_CONFIG.heroPortrait);
   const [imgError, setImgError] = useState(false);
+  const [cvState, setCvState] = useState<'idle' | 'loading' | 'done'>('idle');
+
+  const handleCvClick = async (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (cvState === 'loading') return;
+    setCvState('loading');
+    const result = await downloadCvPdf();
+    if (result.ok) {
+      setCvState('done');
+      window.setTimeout(() => setCvState('idle'), 2800);
+    } else {
+      setCvState('idle');
+    }
+  };
 
   return (
     <section id="home" className="relative overflow-hidden pt-32 pb-20 sm:pt-36 lg:pt-40 lg:pb-24">
@@ -58,6 +73,31 @@ export function HeroSection() {
                 className="inline-flex min-h-[54px] items-center gap-2 rounded-lg border border-orange-500/25 bg-[#0E0D0C]/80 backdrop-blur-md px-8 py-3.5 text-base font-bold text-zinc-100 transition-colors duration-150 hover:border-orange-400/65 hover:bg-zinc-900/90 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
               >
                 Hire Me
+              </a>
+
+              <a
+                href={BRAND_CONFIG.cvUrl}
+                download={BRAND_CONFIG.cvDownloadName}
+                type="application/pdf"
+                onClick={handleCvClick}
+                className="inline-flex min-h-[54px] items-center gap-2.5 rounded-lg border border-amber-400/40 bg-[#1B0F06]/90 backdrop-blur-md px-7 py-3.5 text-base font-bold text-amber-200 transition-all duration-150 hover:border-amber-300 hover:bg-orange-500/20 hover:text-white whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              >
+                {cvState === 'loading' ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin text-orange-400" />
+                    Downloading PDF...
+                  </>
+                ) : cvState === 'done' ? (
+                  <>
+                    <Check className="h-5 w-5 text-amber-300" />
+                    CV Downloaded
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-5 w-5 text-orange-400" />
+                    Download CV
+                  </>
+                )}
               </a>
             </div>
 

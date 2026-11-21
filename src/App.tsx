@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {AboutSection} from './components/AboutSection';
 import {ContactSection} from './components/ContactSection';
 import {CustomCursor} from './components/CustomCursor';
+import {CvPreviewModal} from './components/CvPreviewModal';
 import {Footer} from './components/Footer';
 import {HeroSection} from './components/HeroSection';
 import {InboxModal} from './components/InboxModal';
@@ -20,6 +21,7 @@ import {startPortfolioVideoPreload} from './utils/videoPreloader';
 export default function App() {
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
   const [inboxOpen, setInboxOpen] = useState(false);
+  const [cvOpen, setCvOpen] = useState(false);
 
   useEffect(() => {
     startPortfolioVideoPreload(PORTFOLIO_PROJECTS);
@@ -34,7 +36,7 @@ export default function App() {
 
       <main className="relative z-10">
         <HeroSection />
-        <AboutSection />
+        <AboutSection onOpenCv={() => setCvOpen(true)} />
         <ServicesSection />
         <PortfolioSection onSelectProject={setSelectedProject} />
         <SkillsSection />
@@ -55,6 +57,11 @@ export default function App() {
       <InboxModal
         open={inboxOpen}
         onClose={() => setInboxOpen(false)}
+      />
+
+      <CvPreviewModal
+        open={cvOpen}
+        onClose={() => setCvOpen(false)}
       />
     </div>
   );
